@@ -1,91 +1,101 @@
-// console.clear();
+console.clear();
 
-let contentTitle;
+let contentTitle = [];
 
-console.log(document.cookie);
-function dynamicClothingSection(ob) {
-  let boxDiv = document.createElement("div");
-  boxDiv.id = "box";
+function createDynamicProductSection(product) {
+  const boxDiv = document.createElement("div");
+  boxDiv.classList.add("product-box");
 
-  let boxLink = document.createElement("a");
-  // boxLink.href = '#'
-  boxLink.href = "/contentDetails.html?" + ob.id;
-  // console.log('link=>' + boxLink);
+  const boxLink = document.createElement("a");
+  boxLink.href = `/contentDetails.html?id=${product.id}`;
+  boxLink.classList.add("product-link");
 
-  let imgTag = document.createElement("img");
-  // imgTag.id = 'image1'
-  // imgTag.id = ob.photos
-  imgTag.src = ob.preview;
+  const imgTag = document.createElement("img");
+  imgTag.src = product.api_featured_image;
+  imgTag.alt = product.name;
+  imgTag.classList.add("product-image");
 
-  let detailsDiv = document.createElement("div");
-  detailsDiv.id = "details";
+  const detailsDiv = document.createElement("div");
+  detailsDiv.classList.add("product-details");
 
-  let h3 = document.createElement("h3");
-  let h3Text = document.createTextNode(ob.name);
-  h3.appendChild(h3Text);
+  const h3 = document.createElement("h3");
+  h3.textContent = product.name;
 
-  let h4 = document.createElement("h4");
-  let h4Text = document.createTextNode(ob.brand);
-  h4.appendChild(h4Text);
+  const h4 = document.createElement("h4");
+  h4.textContent = product.brand;
 
-  let h2 = document.createElement("h2");
-  let h2Text = document.createTextNode("rs  " + ob.price);
-  h2.appendChild(h2Text);
+  const h2 = document.createElement("h2");
+  h2.textContent = `Rs ${product.price}`;
 
-  boxDiv.appendChild(boxLink);
-  boxLink.appendChild(imgTag);
-  boxLink.appendChild(detailsDiv);
   detailsDiv.appendChild(h3);
   detailsDiv.appendChild(h4);
   detailsDiv.appendChild(h2);
 
+  boxLink.appendChild(imgTag);
+  boxDiv.appendChild(boxLink);
+  boxDiv.appendChild(detailsDiv);
+
   return boxDiv;
 }
 
-//  TO SHOW THE RENDERED CODE IN CONSOLE
-// console.log(dynamicClothingSection());
 
-// console.log(boxDiv)
 
-let mainContainer = document.getElementById("mainContainer");
-let containerClothing = document.getElementById("containerClothing");
-let containerAccessories = document.getElementById("containerAccessories");
-// mainContainer.appendChild(dynamicClothingSection('hello world!!'))
-
-// BACKEND CALLING
-
-let httpRequest = new XMLHttpRequest();
-
-httpRequest.onreadystatechange = function() {
-  if (this.readyState === 4) {
-    if (this.status == 200) {
-      // console.log('call successful');
-      contentTitle = JSON.parse(this.responseText);
-      if (document.cookie.indexOf(",counter=") >= 0) {
-        var counter = document.cookie.split(",")[1].split("=")[1];
-        document.getElementById("badge").innerHTML = counter;
-      }
-      for (let i = 0; i < contentTitle.length; i++) {
-        if (contentTitle[i].isAccessory) {
-          console.log(contentTitle[i]);
-          containerAccessories.appendChild(
-            dynamicClothingSection(contentTitle[i])
-          );
-        } else {
-          console.log(contentTitle[i]);
-          containerClothing.appendChild(
-            dynamicClothingSection(contentTitle[i])
-          );
-        }
-      }
-    } else {
-      console.log("call failed!");
-    }
+function updateBadgeFromCookie() {
+  const counterMatch = document.cookie.match(/counter=(\d+)/);
+  if (counterMatch) {
+    const counter = counterMatch[1];
+    document.getElementById("badge").textContent = counter;
   }
-};
-httpRequest.open(
-  "GET",
-  "https://5d76bf96515d1a0014085cf9.mockapi.io/product",
-  true
-);
-httpRequest.send();
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function renderProducts(products) {
+  const containerClothing = document.getElementById("containerClothing");
+  containerClothing.innerHTML = '';
+
+  products.forEach(product => {
+    const productSection = createDynamicProductSection(product);
+    containerClothing.appendChild(productSection);
+  });
+}
+
+function applyFilter(filter) {
+  let filteredProducts = contentTitle;
+
+  if (filter !== "best") {
+    filteredProducts = contentTitle.filter(product => product.product_type === filter);
+  }
+
+  shuffleArray(filteredProducts);
+  const displayedProducts = filteredProducts.slice(0, 10);
+  renderProducts(displayedProducts);
+
+  const buttons = document.querySelectorAll(".filter-button");
+  buttons.forEach(button => button.classList.remove("active"));
+
+  document.querySelector(`button[onclick="applyFilter('${filter}')"]`).classList.add("active");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("./products.json")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then(data => {
+      contentTitle = data;
+      updateBadgeFromCookie();
+      applyFilter('best'); // Apply default filter on load
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+    });
+});
