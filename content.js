@@ -25,7 +25,7 @@ function createDynamicProductSection(product) {
   h4.textContent = product.brand;
 
   const h2 = document.createElement("h2");
-  h2.textContent = `Rs ${product.price}`;
+  h2.textContent = product.price > 0 ? `Rs ${product.price}` : "Not Available";
 
   detailsDiv.appendChild(h3);
   detailsDiv.appendChild(h4);
@@ -37,7 +37,6 @@ function createDynamicProductSection(product) {
 
   return boxDiv;
 }
-
 
 
 function updateBadgeFromCookie() {

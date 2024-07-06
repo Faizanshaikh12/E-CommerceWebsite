@@ -90,12 +90,9 @@ h2 {
 }
 
 .product-box {
-    width: 250px; /* Adjust width as needed */
-    margin: 10px; /* Example margin */
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack child elements vertically */
-    text-align: center; /* Center content */
-  }
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s; /* Added transform transition */
+}
   
   .product-link {
     display: block; /* Ensure the link takes up the full width of its container */
@@ -121,6 +118,17 @@ h2 {
   .product-details h3, .product-details h4, .product-details h2 {
     margin: 0; /* Remove default margin */
   }
+
+  .product-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px); /* Added translate effect */
+}
+
+.product-box:focus-within {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    transform: translateY(-5px); /* Added translate effect */
+}
   
 
 /* ----------------------------- MEDIA QUERY --------------------------- */
