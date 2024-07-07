@@ -96,6 +96,27 @@ button a:focus
     outline: none;
 }
 
+.color-list {
+    list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Adjust spacing between color swatches */
+}
+
+.color-list li {
+    width: 20px; /* Set width of each color swatch */
+    height: 20px; /* Set height of each color swatch */
+    border-radius: 50%; /* Ensure the swatch is circular */
+    cursor: pointer;
+}
+
+.color-swatch {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+
 /* ----------------------------- MEDIA QUERY --------------------------- */
 
 @media(max-width: 1300px)

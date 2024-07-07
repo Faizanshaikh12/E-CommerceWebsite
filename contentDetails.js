@@ -1,82 +1,92 @@
-console.clear()
+console.clear();
 
-let id = location.search.split('?')[1]
-console.log(id)
-
-if(document.cookie.indexOf(',counter=')>=0)
-{
-    let counter = document.cookie.split(',')[1].split('=')[1]
-    document.getElementById("badge").innerHTML = counter
+// Function to load components (header and footer)
+function loadComponent(url, elementId) {
+    let req = new XMLHttpRequest();
+    req.open("GET", url, false);
+    req.send(null);
+    document.getElementById(elementId).innerHTML = req.responseText;
 }
 
-function dynamicContentDetails(ob)
-{
-    let mainContainer = document.createElement('div')
-    mainContainer.id = 'containerD'
+
+// Function to dynamically create and populate product details
+function dynamicContentDetails(product) {
+    let mainContainer = document.createElement('div');
+    mainContainer.id = 'containerD';
     document.getElementById('containerProduct').appendChild(mainContainer);
 
-    let imageSectionDiv = document.createElement('div')
-    imageSectionDiv.id = 'imageSection'
+    // Creating image section
+    let imageSectionDiv = document.createElement('div');
+    imageSectionDiv.id = 'imageSection';
 
-    let imgTag = document.createElement('img')
-     imgTag.id = 'imgDetails'
-     //imgTag.id = ob.photos
-     imgTag.src = ob.preview
+    let imgTag = document.createElement('img');
+    imgTag.id = 'imgDetails';
+    imgTag.src = product.api_featured_image;
 
-    imageSectionDiv.appendChild(imgTag)
+    imageSectionDiv.appendChild(imgTag);
 
-    let productDetailsDiv = document.createElement('div')
-    productDetailsDiv.id = 'productDetails'
+    // Creating product details section
+    let productDetailsDiv = document.createElement('div');
+    productDetailsDiv.id = 'productDetails';
 
-    // console.log(productDetailsDiv);
+    let h1 = document.createElement('h1');
+    h1.textContent = product.name;
 
-    let h1 = document.createElement('h1')
-    let h1Text = document.createTextNode(ob.name)
-    h1.appendChild(h1Text)
+    let h4Brand = document.createElement('h4');
+    h4Brand.textContent = 'Brand: ' + product.brand;
 
-    let h4 = document.createElement('h4')
-    let h4Text = document.createTextNode(ob.brand)
-    h4.appendChild(h4Text)
-    console.log(h4);
+    let h4Category = document.createElement('h4');
+    h4Category.textContent = 'Category: ' + product.category;
 
-    let detailsDiv = document.createElement('div')
-    detailsDiv.id = 'details'
+    let h3Price = document.createElement('h3');
+    h3Price.textContent = 'Price: ' + 'Rs. ' + product.price;
 
-    let h3DetailsDiv = document.createElement('h3')
-    let h3DetailsText = document.createTextNode('Rs ' + ob.price)
-    h3DetailsDiv.appendChild(h3DetailsText)
+     // Creating product description with read more functionality
+     let pDescription = document.createElement('p');
+     pDescription.classList.add('product-description');
+     pDescription.textContent = truncateText(product.description, 200); // Truncate description to 200 characters initially
+ 
+     let readMoreLink = document.createElement('a');
+     readMoreLink.href = '#';
+     readMoreLink.textContent = 'Read More';
+     readMoreLink.classList.add('read-more-link');
+     readMoreLink.onclick = function() {
+         if (pDescription.classList.contains('expanded')) {
+             pDescription.textContent = truncateText(product.description, 200);
+             readMoreLink.textContent = 'Read More';
+             pDescription.classList.remove('expanded');
+         } else {
+             pDescription.textContent = product.description;
+             readMoreLink.textContent = 'Read Less';
+             pDescription.classList.add('expanded');
+         }
+     };
 
-    let h3 = document.createElement('h3')
-    let h3Text = document.createTextNode('Description')
-    h3.appendChild(h3Text)
+    // Creating color options section
+    let colorSectionDiv = document.createElement('div');
+    colorSectionDiv.id = 'colorSection';
 
-    let para = document.createElement('p')
-    let paraText = document.createTextNode(ob.description)
-    para.appendChild(paraText)
+    let h3Colors = document.createElement('h3');
+    h3Colors.textContent = 'Available Colors:';
 
-    let productPreviewDiv = document.createElement('div')
-    productPreviewDiv.id = 'productPreview'
+    let ulColors = document.createElement('ul');
+    ulColors.classList.add('color-list');
 
-    let h3ProductPreviewDiv = document.createElement('h3')
-    let h3ProductPreviewText = document.createTextNode('Product Preview')
-    h3ProductPreviewDiv.appendChild(h3ProductPreviewText)
-    productPreviewDiv.appendChild(h3ProductPreviewDiv)
+    // Loop through product_colors array to create color swatches or names
+    product.product_colors.forEach(color => {
+        let liColor = document.createElement('li');
+    
+        // Create a div for the color swatch
+        let colorSwatch = document.createElement('div');
+        colorSwatch.classList.add('color-swatch');
+        colorSwatch.style.backgroundColor = color.hex_value;
+    
+        liColor.appendChild(colorSwatch);
+        ulColors.appendChild(liColor);
+    });
 
-    let i;
-    for(i=0; i<ob.photos.length; i++)
-    {
-        let imgTagProductPreviewDiv = document.createElement('img')
-        imgTagProductPreviewDiv.id = 'previewImg'
-        imgTagProductPreviewDiv.src = ob.photos[i]
-        imgTagProductPreviewDiv.onclick = function(event)
-        {
-            console.log("clicked" + this.src)
-            imgTag.src = ob.photos[i]
-            document.getElementById("imgDetails").src = this.src 
-            
-        }
-        productPreviewDiv.appendChild(imgTagProductPreviewDiv)
-    }
+    colorSectionDiv.appendChild(h3Colors);
+    colorSectionDiv.appendChild(ulColors);
 
     let buttonDiv = document.createElement('div')
     buttonDiv.id = 'button'
@@ -100,48 +110,51 @@ function dynamicContentDetails(ob)
     }
     buttonTag.appendChild(buttonText)
 
-
-    console.log(mainContainer.appendChild(imageSectionDiv));
-    mainContainer.appendChild(imageSectionDiv)
-    mainContainer.appendChild(productDetailsDiv)
-    productDetailsDiv.appendChild(h1)
-    productDetailsDiv.appendChild(h4)
-    productDetailsDiv.appendChild(detailsDiv)
-    detailsDiv.appendChild(h3DetailsDiv)
-    detailsDiv.appendChild(h3)
-    detailsDiv.appendChild(para)
-    productDetailsDiv.appendChild(productPreviewDiv)
-    
-    
+    // Appending elements to product details section
+    productDetailsDiv.appendChild(h1);
+    productDetailsDiv.appendChild(h4Brand);
+    productDetailsDiv.appendChild(h4Category);
+    productDetailsDiv.appendChild(h3Price);
+    productDetailsDiv.appendChild(pDescription);
+    productDetailsDiv.appendChild(readMoreLink);
+    productDetailsDiv.appendChild(colorSectionDiv);
     productDetailsDiv.appendChild(buttonDiv)
 
+    // Appending image section and product details to main container
+    mainContainer.appendChild(imageSectionDiv);
+    mainContainer.appendChild(productDetailsDiv);
 
-    return mainContainer
+    return mainContainer;
 }
 
+// Function to truncate text
+function truncateText(text, maxLength) {
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + '...';
+    }
+    return text;
+}
 
+// Function to find product by ID in the JSON data
+function findProductById(products, id) {
+    return products.find(function(product) {
+        return product.id === +id;
+    });
+}
 
-// BACKEND CALLING
-
-let httpRequest = new XMLHttpRequest()
-{
-    httpRequest.onreadystatechange = function()
-    {
-        if(this.readyState === 4 && this.status == 200)
-        {
-            console.log('connected!!');
-            let contentDetails = JSON.parse(this.responseText)
-            {
-                console.log(contentDetails);
-                dynamicContentDetails(contentDetails)
-            }
-        }
-        else
-        {
-            console.log('not connected!');
+// Fetching product details based on ID from local JSON file
+let id = location.search.split('?id=')[1];
+let httpRequest = new XMLHttpRequest();
+httpRequest.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200) {
+        let productsData = JSON.parse(this.responseText);
+        let product = findProductById(productsData, id);
+        if (product) {
+            dynamicContentDetails(product);
+        } else {
+            console.error('Product not found');
         }
     }
-}
-
-httpRequest.open('GET', 'https://5d76bf96515d1a0014085cf9.mockapi.io/product/'+id, true)
-httpRequest.send()  
+};
+httpRequest.open('GET', 'products.json', true);
+httpRequest.send();
