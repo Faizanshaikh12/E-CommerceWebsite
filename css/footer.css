@@ -27,6 +27,12 @@ body
     padding-top: 30px;
     font-size: 12px;
 }
+
+#webFooter .shopName
+{
+    font-size: 40px;
+    font-family: 'Great Vibes', cursive;
+}
 #webFooter a
 {
     color: white;
@@ -35,6 +41,11 @@ body
 #webFooter a:hover
 {
     color: lightslategray;
+}
+#webFooter p {
+    font-size: 1.1em;
+    line-height: 1;
+    margin-bottom: 20px;
 }
 
 .titleFooter h3{
